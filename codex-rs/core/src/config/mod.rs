@@ -781,6 +781,9 @@ pub struct Config {
     /// Show startup tooltips in the TUI welcome screen.
     pub show_tooltips: bool,
 
+    /// Show the TUI greeting on startup.
+    pub show_greeting: bool,
+
     /// Show a TUI notice when the connected app server is an older stable release.
     pub tui_show_server_version_notice: bool,
 
@@ -4500,6 +4503,7 @@ impl Config {
             tui_effects: cfg.tui.as_ref().map(|t| t.effects).unwrap_or_default(),
             tui_rendering: cfg.tui.as_ref().map(|t| t.rendering).unwrap_or_default(),
             show_tooltips: cfg.tui.as_ref().map(|t| t.show_tooltips).unwrap_or(true),
+            show_greeting: cfg.tui.as_ref().map(|t| t.show_greeting).unwrap_or(true),
             tui_show_server_version_notice: cfg
                 .tui
                 .as_ref()

@@ -212,6 +212,7 @@ async fn startup_typeahead_pty_child() {
             transcript_mode: crate::transcript_mode::TranscriptMode::Terminal,
             status_line_enabled: true,
             welcome_motion: crate::motion::MotionMode::Animated,
+            show_greeting: true,
             keymap: crate::keymap::RuntimeKeymap::defaults(),
             disable_paste_burst: false,
         },

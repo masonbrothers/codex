@@ -214,6 +214,7 @@ impl ChatWidget {
             history_cell::set_session_greeting(
                 &mut session_info_cell,
                 &self.empty_state_animation.borrow().greeting,
+                self.local_settings.tui.show_greeting,
             );
             self.apply_session_info_cell(session_info_cell);
         } else if self

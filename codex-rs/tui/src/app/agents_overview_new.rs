@@ -55,6 +55,7 @@ impl App {
                     tui,
                     StartupDraftInitialScreen::Composer,
                     StartupDraftSessionAction::NewFromCommandCenter,
+                    self.local_settings.tui.show_greeting,
                 ))
             });
         let mut display_config = self.chat_widget.config_ref().clone();

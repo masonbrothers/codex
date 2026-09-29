@@ -74,6 +74,7 @@ pub(super) async fn load(
         .as_ref()
         .and_then(|tui| tui.status_line.as_ref())
         .is_none_or(|items| !items.is_empty());
+    let show_greeting = config_toml.tui.as_ref().is_none_or(|tui| tui.show_greeting);
     let default_tui_settings = codex_config::types::Tui::default();
     let tui_settings = config_toml.tui.as_ref().unwrap_or(&default_tui_settings);
     let keymap = RuntimeKeymap::from_config(&tui_settings.keymap).map_err(io::Error::other)?;
@@ -96,6 +97,7 @@ pub(super) async fn load(
             transcript_mode,
             status_line_enabled,
             welcome_motion,
+            show_greeting,
             keymap,
             disable_paste_burst,
         },

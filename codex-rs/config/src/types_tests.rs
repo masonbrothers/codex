@@ -121,3 +121,22 @@ fn rendering_preferences_default_individually_and_ignore_animation_switch() {
         );
     }
 }
+
+#[test]
+fn greeting_visibility_defaults_independently_from_other_startup_settings() {
+    let omitted: Tui = toml::from_str("").unwrap();
+    let explicit_true: Tui = toml::from_str("show_greeting = true").unwrap();
+    let explicit_false: Tui =
+        toml::from_str("animations = false\nshow_tooltips = false\nshow_greeting = false").unwrap();
+
+    assert_eq!(omitted, explicit_true);
+    assert_eq!(
+        explicit_false,
+        Tui {
+            animations: false,
+            show_tooltips: false,
+            show_greeting: false,
+            ..omitted
+        }
+    );
+}

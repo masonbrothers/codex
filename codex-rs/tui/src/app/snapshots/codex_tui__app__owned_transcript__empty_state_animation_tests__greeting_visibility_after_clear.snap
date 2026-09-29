@@ -1,0 +1,39 @@
+---
+source: tui/src/app/empty_state_animation_tests.rs
+expression: "snapshots.join(\"\\n---\\n\").replace(crate::version::CODEX_CLI_VERSION,\n\"<VERSION>\")"
+---
+show_greeting = true
+
+  >_ OpenAI Codex (v<VERSION>)
+     /tmp/project
+
+  Pull up a prompt.
+
+
+
+
+
+
+
+› Ask Codex to do anything
+
+  GPT-5.6-Sol default · /tmp/project
+  ? for shortcuts                                      ⚠ 1 warning · f2 to view
+---
+show_greeting = false
+
+  >_ OpenAI Codex (v<VERSION>)
+     /tmp/project
+
+
+
+
+
+
+
+
+
+› Ask Codex to do anything
+
+  GPT-5.6-Sol default · /tmp/project
+  ? for shortcuts                                      ⚠ 1 warning · f2 to view

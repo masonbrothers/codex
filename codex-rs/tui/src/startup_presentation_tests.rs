@@ -98,3 +98,40 @@ async fn first_frame_respects_screen_and_status_line_overrides() -> anyhow::Resu
     }
     Ok(())
 }
+
+#[tokio::test]
+async fn greeting_preference_applies_before_first_paint_and_accepts_cli_overrides()
+-> anyhow::Result<()> {
+    let home = tempfile::tempdir()?;
+    let cli = Cli::try_parse_from(["codex"])?;
+    for (settings, cli_override, expected) in [
+        ("", None, true),
+        ("[tui]\n", None, true),
+        ("[tui]\nshow_greeting = false\n", None, false),
+        ("[tui]\nshow_greeting = false\n", Some(true), true),
+        ("[tui]\nshow_greeting = true\n", Some(false), false),
+        (
+            "[tui]\nanimations = false\nshow_tooltips = false\n",
+            None,
+            true,
+        ),
+    ] {
+        std::fs::write(home.path().join("config.toml"), settings)?;
+        let presentation = load(
+            &cli,
+            home.path(),
+            LoaderOverrides {
+                ignore_project_config: true,
+                ..LoaderOverrides::without_managed_config_for_tests()
+            },
+            cli_override
+                .map(|value| ("tui.show_greeting".into(), TomlValue::Boolean(value)))
+                .into_iter()
+                .collect(),
+            /*config_cwd*/ None,
+        )
+        .await?;
+        assert_eq!(presentation.screen.show_greeting, expected);
+    }
+    Ok(())
+}

@@ -322,6 +322,60 @@ async fn submitting_a_draft_keeps_greeting_and_dismisses_logo_even_after_clear()
 }
 
 #[tokio::test]
+async fn greeting_opt_out_preserves_header_and_warnings_after_clear() -> Result<()> {
+    let mut app = crate::app::test_support::make_test_app().await;
+    app.local_settings.tui.animations = false;
+    app.chat_widget
+        .empty_state_animation
+        .borrow()
+        .greeting
+        .set(crate::empty_state_animation::Greeting {
+            phrase: "Pull up a prompt.",
+        })
+        .expect("initial greeting");
+    let mut tui = crate::tui::test_support::make_test_tui()?;
+    tui.set_owned_screen(/*owned*/ true)?;
+    let mut snapshots = Vec::new();
+    for show_greeting in [true, false] {
+        app.local_settings.tui.show_greeting = show_greeting;
+        app.reset_transcript_state_after_clear();
+        app.queue_clear_ui_header(&mut tui);
+        app.transcript_cells
+            .push(Arc::new(history_cell::StartupWarningsCell::new(vec![
+                "Example startup warning".into(),
+            ])));
+        draw(&mut app, &mut tui, Size::new(/*width*/ 80, /*height*/ 16))?;
+        let frame = text(crate::custom_terminal::test_support::last_rendered_buffer(
+            &tui.terminal,
+        ));
+        assert_eq!(frame.contains("Pull up a prompt."), show_greeting);
+        assert!(frame.contains("OpenAI Codex"));
+        assert!(frame.contains("1 warning"));
+        // Inline scrollback and raw output use the same preference as the owned transcript.
+        for lines in [
+            app.clear_ui_header_lines(/*width*/ 80),
+            app.transcript_cells[0].raw_lines(),
+        ] {
+            assert_eq!(
+                lines
+                    .iter()
+                    .any(|line| line.to_string().contains("Pull up a prompt.")),
+                show_greeting
+            );
+        }
+        snapshots.push(format!("show_greeting = {show_greeting}\n{frame}"));
+    }
+    insta::assert_snapshot!(
+        "greeting_visibility_after_clear",
+        snapshots
+            .join("\n---\n")
+            .replace(crate::version::CODEX_CLI_VERSION, "<VERSION>"),
+    );
+    tui.set_owned_screen(/*owned*/ false)?;
+    Ok(())
+}
+
+#[tokio::test]
 async fn empty_state_animation_survives_plain_transcript_clicks() -> Result<()> {
     use crossterm::event::MouseButton;
     use crossterm::event::MouseEvent;

@@ -58,6 +58,7 @@ pub(crate) struct StartupScreen {
     pub(crate) transcript_mode: crate::transcript_mode::TranscriptMode,
     pub(crate) status_line_enabled: bool,
     pub(crate) welcome_motion: crate::motion::MotionMode,
+    pub(crate) show_greeting: bool,
     pub(crate) keymap: RuntimeKeymap,
     pub(crate) disable_paste_burst: bool,
 }
@@ -135,7 +136,8 @@ impl StartupDraft {
         );
         tui.terminal_app_over_ssh = initialized_terminal.terminal_app_over_ssh;
         tui.set_alt_screen_enabled(screen.use_alt_screen);
-        let mut pump = StartupDraftPump::new(&tui, initial_screen, session_action);
+        let mut pump =
+            StartupDraftPump::new(&tui, initial_screen, session_action, screen.show_greeting);
         pump.motion = screen.welcome_motion;
         pump.bottom_pane
             .set_status_line_enabled(screen.status_line_enabled);
@@ -193,6 +195,7 @@ impl StartupDraftPump {
         tui: &Tui,
         initial_screen: StartupDraftInitialScreen,
         session_action: StartupDraftSessionAction,
+        show_greeting: bool,
     ) -> Self {
         let (app_event_tx, app_event_rx) = unbounded_channel();
         let mut blossom = crate::empty_state_animation::EmptyStateAnimation::default();
@@ -203,7 +206,7 @@ impl StartupDraftPump {
             blossom.start_fresh();
         }
         let mut header = startup_session_header(/*config*/ None);
-        history_cell::set_session_greeting(header.as_mut(), &blossom.greeting);
+        history_cell::set_session_greeting(header.as_mut(), &blossom.greeting, show_greeting);
         Self {
             header,
             blossom: std::cell::RefCell::new(blossom),
@@ -262,7 +265,11 @@ impl StartupDraftPump {
             local_settings.tui.animations && local_settings.tui.effects.welcome,
         );
         self.header = startup_session_header(Some(config));
-        history_cell::set_session_greeting(self.header.as_mut(), &self.blossom.borrow().greeting);
+        history_cell::set_session_greeting(
+            self.header.as_mut(),
+            &self.blossom.borrow().greeting,
+            local_settings.tui.show_greeting,
+        );
         self.bottom_pane.set_status_line_enabled(
             local_settings
                 .tui
