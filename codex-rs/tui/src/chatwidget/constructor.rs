@@ -65,7 +65,11 @@ impl ChatWidget {
 
         let empty_state_animation = crate::empty_state_animation::EmptyStateAnimation::default();
         let mut header = Self::placeholder_session_header_cell(&config);
-        history_cell::set_session_greeting(header.as_mut(), &empty_state_animation.greeting);
+        history_cell::set_session_greeting(
+            header.as_mut(),
+            &empty_state_animation.greeting,
+            local_settings.tui.show_greeting,
+        );
         let active_cell = Some(header);
 
         let current_cwd = Some(config.cwd.to_path_buf());

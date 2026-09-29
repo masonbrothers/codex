@@ -37,7 +37,11 @@ where
         .expect("initial greeting");
     blossom.start_fresh();
     let mut header = startup_session_header(/*config*/ None);
-    crate::history_cell::set_session_greeting(header.as_mut(), &blossom.greeting);
+    crate::history_cell::set_session_greeting(
+        header.as_mut(),
+        &blossom.greeting,
+        /*show_greeting*/ true,
+    );
     StartupDraftPump {
         header,
         blossom: std::cell::RefCell::new(blossom),
@@ -329,6 +333,43 @@ async fn startup_draft_hydrates_its_header_without_moving_the_composer() {
             .desired_height(width),
         initial_height
     );
+}
+
+#[tokio::test]
+async fn startup_draft_keeps_greeting_hidden_before_and_after_configuration() -> anyhow::Result<()>
+{
+    let home = tempfile::tempdir()?;
+    std::fs::write(
+        home.path().join("config.toml"),
+        "[tui]\nshow_greeting = false\n",
+    )?;
+    let config = ConfigBuilder::default()
+        .codex_home(home.path().to_path_buf())
+        .loader_overrides(codex_config::LoaderOverrides {
+            ignore_project_config: true,
+            ..codex_config::LoaderOverrides::without_managed_config_for_tests()
+        })
+        .build()
+        .await?;
+    let tui = crate::tui::test_support::make_test_tui()?;
+    let mut pump = StartupDraftPump::new(
+        &tui,
+        StartupDraftInitialScreen::Composer,
+        StartupDraftSessionAction::New,
+        config.show_greeting,
+    );
+    for configured in [false, true] {
+        if configured {
+            pump.apply_config(&config);
+        }
+        let expected = startup_session_header(configured.then_some(&config));
+        assert_eq!(
+            pump.header.display_lines(/*width*/ 80),
+            expected.display_lines(/*width*/ 80)
+        );
+        assert_eq!(pump.header.raw_lines(), expected.raw_lines());
+    }
+    Ok(())
 }
 
 #[test]

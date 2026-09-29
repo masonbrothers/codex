@@ -43,6 +43,7 @@ async fn launch_screen_mode_survives_configuration_reload() -> anyhow::Result<()
         reloaded_config.tui_right_click_paste = RightClickPaste::Off;
         reloaded_config.tui_alternate_screen = AltScreenMode::Never;
         reloaded_config.tui_theme = Some("nord".into());
+        reloaded_config.show_greeting = false;
         let mut expected = LocalSettings::from(&reloaded_config);
         expected.transcript_mode = expected_mode;
         expected.tui.alternate_screen = expected_alt;
@@ -102,6 +103,7 @@ async fn local_load_preserves_defaults_and_resolved_overrides() -> anyhow::Resul
 [tui]
 animations = false
 show_tooltips = false
+show_greeting = false
 show_server_version_notice = false
 auto_recap = false
 fullscreen_transcript = true
@@ -160,6 +162,7 @@ fast_default_opt_out = true
                 lists: false,
             };
             expected.show_tooltips = false;
+            expected.show_greeting = false;
             expected.show_server_version_notice = false;
             expected.auto_recap = false;
             expected.fullscreen_transcript = true;

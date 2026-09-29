@@ -825,6 +825,11 @@ pub struct Tui {
     #[serde(default = "default_true")]
     pub show_tooltips: bool,
 
+    /// Show the TUI greeting on startup.
+    /// Defaults to `true`; independent of animations and startup tooltips.
+    #[serde(default = "default_true")]
+    pub show_greeting: bool,
+
     /// Show informational notices about connected app server version differences.
     /// Defaults to `true`; this does not control compatibility errors or version status.
     #[serde(default = "default_true")]

@@ -38,7 +38,7 @@ async fn owned_startup_hides_tip_in_transcript() -> Result<()> {
         Some("Use /mcp to list configured MCP tools.".into()),
         /*auth_plan*/ None,
     );
-    history_cell::set_session_greeting(&mut session_info, &greeting);
+    history_cell::set_session_greeting(&mut session_info, &greeting, /*show_greeting*/ true);
     app.transcript_cells = vec![
         Arc::new(session_info),
         Arc::new(AgentMessageCell::new(

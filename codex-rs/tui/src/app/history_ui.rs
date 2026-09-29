@@ -326,6 +326,7 @@ impl App {
         history_cell::set_session_greeting(
             &mut header,
             &self.chat_widget.empty_state_animation.borrow().greeting,
+            self.local_settings.tui.show_greeting,
         );
         header
     }

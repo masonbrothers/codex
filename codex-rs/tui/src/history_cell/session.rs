@@ -110,13 +110,21 @@ impl HistoryCell for SessionNoticeCell {
 #[derive(Debug)]
 pub struct SessionInfoCell(CompositeHistoryCell);
 
-/// Bind provisional and configured banners to the thread's chosen greeting.
-pub(crate) fn set_session_greeting(cell: &mut dyn HistoryCell, greeting: &Arc<OnceLock<Greeting>>) {
+/// Bind banners to the thread's chosen greeting only when the client enables greetings.
+pub(crate) fn set_session_greeting(
+    cell: &mut dyn HistoryCell,
+    greeting: &Arc<OnceLock<Greeting>>,
+    show_greeting: bool,
+) {
     if let Some(header) = cell.as_any_mut().downcast_mut::<SessionHeaderHistoryCell>() {
-        header.greeting = Arc::clone(greeting);
+        header.greeting = if show_greeting {
+            Arc::clone(greeting)
+        } else {
+            Default::default()
+        };
     } else if let Some(info) = cell.as_any_mut().downcast_mut::<SessionInfoCell>() {
         for part in &mut info.0.parts {
-            set_session_greeting(part.as_mut(), greeting);
+            set_session_greeting(part.as_mut(), greeting, show_greeting);
         }
     }
 }
